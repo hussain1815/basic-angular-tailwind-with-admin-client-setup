@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-gray-100">
+  <header class="bg-red-600 text-white p-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-semibold">Admin Dashboard</h1>
+    <div class="flex items-center gap-4">
+      <span *ngIf="currentUser">Welcome, {{ currentUser.first_name }} {{ currentUser.last_name }}</span>
+      <button (click)="logout()" class="bg-red-700 hover:bg-red-800 px-3 py-1 rounded">Logout</button>
+    </div>
+  </header>
+
+  <main class="p-8 max-w-4xl mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800 border-b-2 border-red-600 pb-2">User Information</h2>
+      <div *ngIf="currentUser" class="space-y-2">
+        <p class="text-gray-600"><strong class="text-gray-800">Name:</strong> {{ currentUser.first_name }} {{ currentUser.last_name }}</p>
+        <p class="text-gray-600"><strong class="text-gray-800">Email:</strong> {{ currentUser.email }}</p>
+        <p class="text-gray-600"><strong class="text-gray-800">Role:</strong> {{ currentUser.role }}</p>
+        <p *ngIf="currentUser.show_room_name" class="text-gray-600"><strong class="text-gray-800">Showroom:</strong> {{ currentUser.show_room_name }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800 border-b-2 border-red-600 pb-2">Quick Actions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded text-sm">Manage Users</button>
+        <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded text-sm">View Reports</button>
+        <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded text-sm">Settings</button>
+        <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded text-sm">System Logs</button>
+      </div>
+    </div>
+  </main>
+</div>
