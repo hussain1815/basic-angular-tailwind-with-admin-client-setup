@@ -12,13 +12,13 @@ export const routes: Routes = [
     path: 'admin', 
     loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['admin', 'show_room_owner', 'showroomowner', 'show room owner'] }
+    data: { roles: ['Clinic Owner','admin', 'show_room_owner', 'showroomowner', 'show room owner'] }
   },
   { 
     path: 'client', 
     loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['client', 'investor', 'user'] }
+    data: { roles: ['Receptionist','receptionist','client', 'investor', 'user'] }
   },
   // { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '**', redirectTo: '/login' }

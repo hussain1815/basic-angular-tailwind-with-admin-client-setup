@@ -1,0 +1,94 @@
+/* Expense Tracking Component Styles */
+
+.expense-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.expense-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.budget-progress {
+  transition: width 0.8s ease-in-out;
+}
+
+.category-bar {
+  transition: width 0.6s ease-in-out;
+}
+
+.status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Budget usage indicator colors */
+.budget-safe {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.budget-warning {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.budget-danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+/* Category color classes */
+.bg-blue-500 {
+  background-color: #3b82f6;
+}
+
+.bg-green-500 {
+  background-color: #10b981;
+}
+
+.bg-yellow-500 {
+  background-color: #f59e0b;
+}
+
+.bg-purple-500 {
+  background-color: #8b5cf6;
+}
+
+.bg-gray-500 {
+  background-color: #6b7280;
+}
+
+/* Animation for progress bars */
+@keyframes fillProgress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--target-width);
+  }
+}
+
+.progress-fill {
+  animation: fillProgress 1s ease-out;
+}
+
+/* Table enhancements */
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.expense-row {
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .expense-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-chart {
+    margin-top: 1rem;
+  }
+}

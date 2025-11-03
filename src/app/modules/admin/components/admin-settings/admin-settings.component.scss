@@ -1,0 +1,223 @@
+/* Admin Settings Component Styles */
+
+.settings-section {
+  transition: all 0.2s ease-in-out;
+}
+
+.settings-section:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch {
+  transition: all 0.3s ease-in-out;
+}
+
+.toggle-switch:hover {
+  transform: scale(1.05);
+}
+
+.setting-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.setting-item:hover {
+  background-color: #f1f5f9;
+}
+
+.form-input {
+  transition: all 0.2s ease-in-out;
+}
+
+.form-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.permission-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.permission-badge:hover {
+  transform: scale(1.05);
+  background-color: #dbeafe;
+}
+
+.action-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Toggle switch custom styles */
+.toggle-enabled {
+  background-color: #10b981;
+}
+
+.toggle-disabled {
+  background-color: #d1d5db;
+}
+
+.toggle-maintenance {
+  background-color: #ef4444;
+}
+
+.toggle-backup {
+  background-color: #10b981;
+}
+
+.toggle-email {
+  background-color: #3b82f6;
+}
+
+.toggle-sms {
+  background-color: #8b5cf6;
+}
+
+/* Range slider custom styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: #d1d5db;
+  height: 8px;
+  border-radius: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #3b82f6;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-track {
+  background: #d1d5db;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background: #3b82f6;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Security button styles */
+.security-backup {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.security-restore {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.security-scan {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.security-reset {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* Table enhancements */
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.role-row {
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Animation for settings changes */
+.setting-changed {
+  animation: settingPulse 0.5s ease-in-out;
+}
+
+@keyframes settingPulse {
+  0% {
+    background-color: #dbeafe;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Logo Upload Styles */
+.logo-upload-area {
+  transition: all 0.3s ease;
+}
+
+.logo-upload-area:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.file-input-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.upload-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.upload-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logo-preview {
+  transition: all 0.3s ease;
+}
+
+.logo-preview:hover {
+  transform: scale(1.05);
+}
+
+.remove-logo-btn {
+  transition: all 0.2s ease;
+}
+
+.remove-logo-btn:hover {
+  transform: scale(1.1);
+}
+
+/* File input styling */
+input[type="file"] {
+  transition: all 0.2s ease;
+}
+
+input[type="file"]:hover {
+  background-color: #f1f5f9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

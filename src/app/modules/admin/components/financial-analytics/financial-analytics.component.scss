@@ -1,0 +1,83 @@
+/* Financial Analytics Component Styles */
+
+.metric-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.chart-bar {
+  transition: width 0.8s ease-in-out;
+}
+
+.revenue-bar {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.expense-bar {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.department-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.department-item:hover {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
+}
+
+/* Animated progress bars */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Table enhancements */
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.profit-positive {
+  color: #059669;
+}
+
+.profit-negative {
+  color: #dc2626;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    overflow-x: auto;
+  }
+  
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

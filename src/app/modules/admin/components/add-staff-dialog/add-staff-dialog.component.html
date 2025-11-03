@@ -1,0 +1,473 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in" (click)="onCancel()">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slide-in" (click)="$event.stopPropagation()">
+    <!-- Dialog Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold flex items-center">
+        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+        {{ editMode ? 'Edit Staff Member' : 'Add New Staff Member' }}
+      </h2>
+      <button (click)="onCancel()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dialog Content -->
+    <div class="p-6 max-h-[60vh] overflow-y-auto">
+      <form [formGroup]="staffForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Personal Information Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Personal Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">First Name *</label>
+              <input 
+                type="text" 
+                formControlName="firstName" 
+                placeholder="Enter first name"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('firstName')?.invalid && staffForm.get('firstName')?.touched"
+                [class.ring-red-200]="staffForm.get('firstName')?.invalid && staffForm.get('firstName')?.touched">
+              <div *ngIf="staffForm.get('firstName')?.invalid && staffForm.get('firstName')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('firstName') }}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Last Name *</label>
+              <input 
+                type="text" 
+                formControlName="lastName" 
+                placeholder="Enter last name"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('lastName')?.invalid && staffForm.get('lastName')?.touched"
+                [class.ring-red-200]="staffForm.get('lastName')?.invalid && staffForm.get('lastName')?.touched">
+              <div *ngIf="staffForm.get('lastName')?.invalid && staffForm.get('lastName')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('lastName') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Email Address *</label>
+              <input 
+                type="email" 
+                formControlName="email" 
+                placeholder="Enter email address"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('email')?.invalid && staffForm.get('email')?.touched"
+                [class.ring-red-200]="staffForm.get('email')?.invalid && staffForm.get('email')?.touched">
+              <div *ngIf="staffForm.get('email')?.invalid && staffForm.get('email')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('email') }}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Phone Number *</label>
+              <input 
+                type="tel" 
+                formControlName="phone" 
+                placeholder="Enter phone number"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('phone')?.invalid && staffForm.get('phone')?.touched"
+                [class.ring-red-200]="staffForm.get('phone')?.invalid && staffForm.get('phone')?.touched">
+              <div *ngIf="staffForm.get('phone')?.invalid && staffForm.get('phone')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('phone') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Information Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Professional Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Role *</label>
+              
+              <!-- Read-only role field for doctor management -->
+              <div *ngIf="isRoleReadOnly()" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Doctor
+                <span class="ml-2 text-xs text-gray-500">(Fixed for Staff Management)</span>
+              </div>
+              
+              <!-- Dropdown role field for employee management -->
+              <select 
+                *ngIf="!isRoleReadOnly()"
+                formControlName="role" 
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                [class.border-red-500]="staffForm.get('role')?.invalid && staffForm.get('role')?.touched"
+                [class.ring-red-200]="staffForm.get('role')?.invalid && staffForm.get('role')?.touched">
+                <option value="">Select role</option>
+                <option *ngFor="let role of roles" [value]="role.value">
+                  {{ role.label }}
+                </option>
+              </select>
+              <div *ngIf="staffForm.get('role')?.invalid && staffForm.get('role')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('role') }}
+              </div>
+            </div>
+
+            <div *ngIf="isDoctor()" class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Department *</label>
+              <select 
+                formControlName="department" 
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                [class.border-red-500]="staffForm.get('department')?.invalid && staffForm.get('department')?.touched"
+                [class.ring-red-200]="staffForm.get('department')?.invalid && staffForm.get('department')?.touched">
+                <option value="">Select department</option>
+                <option *ngFor="let dept of departments" [value]="dept.value">
+                  {{ dept.label }}
+                </option>
+              </select>
+              <div *ngIf="staffForm.get('department')?.invalid && staffForm.get('department')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('department') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Employee ID *</label>
+              <input 
+                type="text" 
+                formControlName="employeeId" 
+                placeholder="Enter employee ID"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('employeeId')?.invalid && staffForm.get('employeeId')?.touched"
+                [class.ring-red-200]="staffForm.get('employeeId')?.invalid && staffForm.get('employeeId')?.touched">
+              <div *ngIf="staffForm.get('employeeId')?.invalid && staffForm.get('employeeId')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('employeeId') }}
+              </div>
+            </div> -->
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Date of Joining *</label>
+              <input 
+                type="date" 
+                formControlName="dateOfJoining"
+                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('dateOfJoining')?.invalid && staffForm.get('dateOfJoining')?.touched"
+                [class.ring-red-200]="staffForm.get('dateOfJoining')?.invalid && staffForm.get('dateOfJoining')?.touched">
+              <div *ngIf="staffForm.get('dateOfJoining')?.invalid && staffForm.get('dateOfJoining')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('dateOfJoining') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctor-Specific Information Section -->
+        <div *ngIf="isDoctor()" class="space-y-4 border-2 rounded-lg p-4 animate-slide-down">
+          <h3 class="text-lg font-semibold  pb-2 border-blue-300">Doctor Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Specialization *</label>
+              <select 
+                formControlName="specialization" 
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2  transition-colors duration-200 bg-white"
+                [class.border-red-500]="staffForm.get('specialization')?.invalid && staffForm.get('specialization')?.touched"
+                [class.ring-red-200]="staffForm.get('specialization')?.invalid && staffForm.get('specialization')?.touched">
+                <option value="">Select specialization</option>
+                <option *ngFor="let spec of specializations" [value]="spec.value">
+                  {{ spec.label }}
+                </option>
+              </select>
+              <div *ngIf="staffForm.get('specialization')?.invalid && staffForm.get('specialization')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('specialization') }}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Availability *</label>
+              <select 
+                formControlName="availability" 
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2  transition-colors duration-200 bg-white"
+                [class.border-red-500]="staffForm.get('availability')?.invalid && staffForm.get('availability')?.touched"
+                [class.ring-red-200]="staffForm.get('availability')?.invalid && staffForm.get('availability')?.touched">
+                <option value="">Select availability</option>
+                <option *ngFor="let avail of availabilityOptions" [value]="avail.value">
+                  {{ avail.label }}
+                </option>
+              </select>
+              <div *ngIf="staffForm.get('availability')?.invalid && staffForm.get('availability')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('availability') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Degree *</label>
+              <input 
+                type="text" 
+                formControlName="degree" 
+                placeholder="e.g., MBBS, MD Cardiology"
+                class="w-full px-4 py-2 border-2 rounded-lg focus:ring-2  transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('degree')?.invalid && staffForm.get('degree')?.touched"
+                [class.ring-red-200]="staffForm.get('degree')?.invalid && staffForm.get('degree')?.touched">
+              <div *ngIf="staffForm.get('degree')?.invalid && staffForm.get('degree')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('degree') }}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-blue-700">Consultation Fee </label>
+              <input 
+                type="number" 
+                formControlName="consultationFee" 
+                placeholder="Enter consultation fee"
+                min="1"
+                step="1"
+                class="w-full px-4 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('consultationFee')?.invalid && staffForm.get('consultationFee')?.touched"
+                [class.ring-red-200]="staffForm.get('consultationFee')?.invalid && staffForm.get('consultationFee')?.touched">
+              <div *ngIf="staffForm.get('consultationFee')?.invalid && staffForm.get('consultationFee')?.touched" class="text-red-500 text-xs mt-1">
+                {{ getErrorMessage('consultationFee') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-blue-700">Monthly Salary </label>
+              <input 
+                type="number" 
+                formControlName="monthlySalary" 
+                placeholder="Enter monthly salary"
+                min="1"
+                step="1"
+                class="w-full px-4 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched"
+                [class.ring-red-200]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched">
+              <div *ngIf="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched" class="text-red-500 text-xs mt-1">
+                Monthly salary is required
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff-Specific Information Section -->
+        <div *ngIf="isStaff()" class="space-y-4 border-2  rounded-lg p-4 animate-slide-down">
+          <h3 class="text-lg font-semibold  pb-2 ">Staff Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Job Details *</label>
+              <input 
+                type="text" 
+                formControlName="userDetails" 
+                placeholder="e.g., X-ray Operator SR"
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2  transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched"
+                [class.ring-red-200]="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched">
+              <div *ngIf="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched" class="text-red-500 text-xs mt-1">
+                Job details are required
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Monthly Salary *</label>
+              <input 
+                type="number" 
+                formControlName="monthlySalary" 
+                placeholder="Enter monthly salary"
+                min="1"
+                step="1"
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched"
+                [class.ring-red-200]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched">
+              <div *ngIf="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched" class="text-red-500 text-xs mt-1">
+                Monthly salary is required
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receptionist-Specific Information Section -->
+        <div *ngIf="isReceptionist()" class="space-y-4 border-2  rounded-lg p-4 animate-slide-down">
+          <h3 class="text-lg font-semibold  pb-2 ">Receptionist Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Job Details *</label>
+              <input 
+                type="text" 
+                formControlName="userDetails" 
+                placeholder="e.g., Front Desk Receptionist"
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2  transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched"
+                [class.ring-red-200]="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched">
+              <div *ngIf="staffForm.get('userDetails')?.invalid && staffForm.get('userDetails')?.touched" class="text-red-500 text-xs mt-1">
+                Job details are required
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium ">Monthly Salary *</label>
+              <input 
+                type="number" 
+                formControlName="monthlySalary" 
+                placeholder="Enter monthly salary"
+                min="1"
+                step="1"
+                class="w-full px-4 py-2 border-2  rounded-lg focus:ring-2  transition-colors duration-200"
+                [class.border-red-500]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched"
+                [class.ring-red-200]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched">
+              <div *ngIf="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched" class="text-red-500 text-xs mt-1">
+                Monthly salary is required
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-purple-700">Password *</label>
+              <div class="relative">
+                <input 
+                  [type]="showPassword ? 'text' : 'password'" 
+                  formControlName="password" 
+                  placeholder="Enter password"
+                  (focus)="onPasswordFocus()"
+                  (blur)="onPasswordBlur()"
+                  class="w-full px-4 py-2 pr-12 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+                  [class.border-red-500]="staffForm.get('password')?.invalid && staffForm.get('password')?.touched"
+                  [class.ring-red-200]="staffForm.get('password')?.invalid && staffForm.get('password')?.touched">
+                <button 
+                  type="button" 
+                  (click)="togglePasswordVisibility()"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors duration-200">
+                  <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg *ngIf="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <!-- Password Strength Requirements -->
+              <div *ngIf="showPasswordRequirements || (staffForm.get('password')?.value && staffForm.get('password')?.value.length > 0)" 
+                   class="mt-2 p-3 bg-purple-50 border border-purple-200 rounded-lg animate-slide-down">
+                <p class="text-sm font-medium text-purple-800 mb-2">Password Requirements:</p>
+                <div class="space-y-1">
+                  <div class="flex items-center text-xs">
+                    <svg [class]="passwordStrength.minLength ? 'text-green-500' : 'text-gray-400'" class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span [class]="passwordStrength.minLength ? 'text-green-700' : 'text-gray-600'">Minimum 8 characters</span>
+                  </div>
+                  <div class="flex items-center text-xs">
+                    <svg [class]="passwordStrength.hasNumber ? 'text-green-500' : 'text-gray-400'" class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span [class]="passwordStrength.hasNumber ? 'text-green-700' : 'text-gray-600'">At least 1 number</span>
+                  </div>
+                  <div class="flex items-center text-xs">
+                    <svg [class]="passwordStrength.hasLowercase ? 'text-green-500' : 'text-gray-400'" class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span [class]="passwordStrength.hasLowercase ? 'text-green-700' : 'text-gray-600'">At least 1 lowercase letter</span>
+                  </div>
+                  <div class="flex items-center text-xs">
+                    <svg [class]="passwordStrength.hasSpecialChar ? 'text-green-500' : 'text-gray-400'" class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span [class]="passwordStrength.hasSpecialChar ? 'text-green-700' : 'text-gray-600'">At least 1 special character</span>
+                  </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                  <div class="flex-1 bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-300" 
+                         [style.width.%]="getPasswordStrengthPercentage()"
+                         [class]="isPasswordStrong() ? 'bg-green-500' : 'bg-yellow-500'"></div>
+                  </div>
+                  <span class="ml-2 text-xs font-medium" 
+                        [class]="isPasswordStrong() ? 'text-green-600' : 'text-yellow-600'">
+                    {{ isPasswordStrong() ? 'Strong' : 'Weak' }}
+                  </span>
+                </div>
+              </div>
+              
+              <div *ngIf="staffForm.get('password')?.invalid && staffForm.get('password')?.touched" class="text-red-500 text-xs mt-1">
+                <span *ngIf="staffForm.get('password')?.hasError('required')">Password is required</span>
+                <span *ngIf="staffForm.get('password')?.hasError('minlength')">Password must be at least 8 characters</span>
+                <span *ngIf="staffForm.get('password')?.hasError('passwordStrength')">Password does not meet strength requirements</span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-purple-700">Confirm Password *</label>
+              <div class="relative">
+                <input 
+                  [type]="showPasswordConfirm ? 'text' : 'password'" 
+                  formControlName="passwordConfirm" 
+                  placeholder="Confirm password"
+                  class="w-full px-4 py-2 pr-12 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+                  [class.border-red-500]="(staffForm.get('passwordConfirm')?.invalid && staffForm.get('passwordConfirm')?.touched) || (!passwordMatchValidator() && staffForm.get('passwordConfirm')?.value)"
+                  [class.ring-red-200]="(staffForm.get('passwordConfirm')?.invalid && staffForm.get('passwordConfirm')?.touched) || (!passwordMatchValidator() && staffForm.get('passwordConfirm')?.value)">
+                <button 
+                  type="button" 
+                  (click)="togglePasswordConfirmVisibility()"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors duration-200">
+                  <svg *ngIf="!showPasswordConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg *ngIf="showPasswordConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <div *ngIf="staffForm.get('passwordConfirm')?.invalid && staffForm.get('passwordConfirm')?.touched" class="text-red-500 text-xs mt-1">
+                Please confirm your password
+              </div>
+              <div *ngIf="!passwordMatchValidator() && staffForm.get('passwordConfirm')?.value && staffForm.get('password')?.value" class="text-red-500 text-xs mt-1">
+                Passwords do not match
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- No Changes Message -->
+    <div *ngIf="editMode && !hasChanges && staffForm.valid" class="mx-6 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-yellow-700 text-sm">No changes detected. Modify any field to enable update.</p>
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+      <button 
+        type="button" 
+        (click)="onCancel()" 
+        class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        (click)="onSubmit()" 
+        class="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+        [disabled]="!isSubmitButtonEnabled()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        {{ editMode ? 'Update Staff Member' : 'Add Staff Member' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in" (click)="onCancel()">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden animate-slide-in" (click)="$event.stopPropagation()">
+    <!-- Dialog Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold flex items-center">
+        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        {{ editMode ? 'Edit Expense' : 'Add New Expense' }}
+      </h2>
+      <button (click)="onCancel()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dialog Content -->
+    <div class="p-6 max-h-[60vh] overflow-y-auto">
+      <form [formGroup]="expenseForm" (ngSubmit)="onAdd()" class="space-y-6">
+        <!-- Expense Information Section -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Expense Information</h3>
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Amount </label>
+            <div class="relative">
+              <!-- <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">$</span> -->
+              <input 
+                type="number" 
+                formControlName="amount" 
+                placeholder="Enter amount"
+                min="1"
+                step="0.01"
+                class="w-full pl-8 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors duration-200"
+                [class.border-red-500]="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched"
+                [class.ring-red-200]="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched">
+            </div>
+            <div *ngIf="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched" class="text-red-500 text-xs mt-1">
+              {{ getErrorMessage('amount') }}
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Expense Type *</label>
+            <select 
+              formControlName="expense_type" 
+              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors duration-200 bg-white"
+              [class.border-red-500]="expenseForm.get('expense_type')?.invalid && expenseForm.get('expense_type')?.touched"
+              [class.ring-red-200]="expenseForm.get('expense_type')?.invalid && expenseForm.get('expense_type')?.touched">
+              <option value="">Select expense type</option>
+              <option *ngFor="let type of expenseTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+            <div *ngIf="expenseForm.get('expense_type')?.invalid && expenseForm.get('expense_type')?.touched" class="text-red-500 text-xs mt-1">
+              {{ getErrorMessage('expense_type') }}
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Details *</label>
+            <textarea 
+              formControlName="details" 
+              placeholder="Enter expense details (e.g., Monthly rent payment for October)"
+              rows="4"
+              class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors duration-200 resize-none"
+              [class.border-red-500]="expenseForm.get('details')?.invalid && expenseForm.get('details')?.touched"
+              [class.ring-red-200]="expenseForm.get('details')?.invalid && expenseForm.get('details')?.touched">
+            </textarea>
+            <div *ngIf="expenseForm.get('details')?.invalid && expenseForm.get('details')?.touched" class="text-red-500 text-xs mt-1">
+              {{ getErrorMessage('details') }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- No Changes Message -->
+    <div *ngIf="editMode && !hasChanges && expenseForm.valid" class="mx-6 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-yellow-700 text-sm">No changes detected. Modify any field to enable update.</p>
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+      <button 
+        type="button" 
+        (click)="onCancel()" 
+        class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        (click)="onAdd()" 
+        class="flex items-center gap-2 px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+        [disabled]="!isSubmitButtonEnabled()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        {{ editMode ? 'Update Expense' : 'Add Expense' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,56 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+// Basic Material styles without theming
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Custom Material Dialog styles
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: white;
+  --mdc-dialog-supporting-text-color: #374151;
+  border-radius: 12px;
+}
+
+.mat-mdc-dialog-surface {
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: #ffffff;
+}
+
+.mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+// Material button styles
+.mat-mdc-raised-button {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.mat-mdc-raised-button:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+// Material select styles
+.mat-mdc-select-panel {
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.mat-mdc-option:hover {
+  background-color: #f3f4f6;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}

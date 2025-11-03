@@ -1,0 +1,36 @@
+/* Custom styles for admin layout */
+
+/* Smooth transitions */
+.transition-transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Active link styles */
+.router-link-active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border-right: 4px solid #3b82f6;
+}
+
+/* Main content responsive handling */
+main {
+  width: calc(100vw - 16rem); /* Default: 100vw - 256px (w-64) */
+}
+
+@media (min-width: 1024px) {
+  main {
+    width: calc(100vw - 18rem); /* lg: 100vw - 288px (w-72) */
+  }
+}
+
+@media (min-width: 1280px) {
+  main {
+    width: calc(100vw - 20rem); /* xl: 100vw - 320px (w-80) */
+  }
+}
+
+@media (max-width: 1023px) {
+  main {
+    width: 100vw; /* Full width on mobile when sidebar is hidden */
+  }
+}

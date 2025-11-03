@@ -22,57 +22,61 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/api/login/`, credentials).pipe(
-      tap((response:LoginResponse)=>{
+      tap((response: LoginResponse) => {
         const user: User = {
           id: response.id,
           email: response.email,
-          first_name: response.first_name,
-          last_name: response.last_name,
-          role: response.role,
-          phone_number: response.phone_number,
-          address: response.address,
-          cnic: response.cnic,
+          full_name: response.full_name,
+          user_role: response.user_role,
+          user_details: response.user_details,
+          clinic: response.clinic,
+          profile_photo: response.profile_photo,
           is_active: response.is_active,
-          date_joined: response.date_joined,
-          last_login: response.last_login,
-          access_token: response.access_token,
-          refresh_token: response.refresh_token,
-          image: (response as any).image,
-          show_room_name: (response as any).show_room_name
+          token: response.token,
+          first_name: response.full_name?.split(' ')[0] || '',
+          last_name: response.full_name?.split(' ').slice(1).join(' ') || '',
+          role: response.user_role,
+          access_token: response.token,
+          refresh_token: response.token, // Using same token for both
+          image: response.profile_photo
         };
 
         // Store user data properly with all required tokens
-        localStorage.setItem('authToken', response.access_token);
-        localStorage.setItem('userRole', response.role);
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('user_role', response.user_role);
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.currentUserSubject.next(user);
         
-        //console.log('User stored successfully:', user);
-        //console.log('User role:', response.role);
+        // console.log('User stored successfully:', user);
+        // console.log('User role:', response.user_role);
         
         // Navigate based on role
-        this.handleRoleBasedRedirect(user.role);
+        this.handleRoleBasedRedirect(user.user_role);
       })
     );
   }
   
  private handleRoleBasedRedirect(role: string): void {
-    //console.log('Redirecting user with role:', role); // Debug log
+    // console.log('Redirecting user with role:', role); // Debug log
     switch (role.toLowerCase()) {
       case 'admin':
+      case 'clinic owner':
+      case 'Clinic Owner':
       case 'show_room_owner':
       case 'showroomowner':
       case 'show room owner':
-        //console.log('Navigating to admin dashboard'); // Debug log
+        // console.log('Navigating to admin dashboard'); // Debug log
         this.router.navigate(['/admin']);
         break;
       case 'client':
+      case 'Receptionist':
+      case 'receptionist':
       case 'investor':
-        //console.log('Navigating to client dashboard'); // Debug log
+        // console.log('Navigating to client dashboard'); // Debug log
         this.router.navigate(['/client']);
         break;
       default:
-        //console.log('Unknown role, redirecting to login'); // Debug log
+        // console.log('Unknown role, redirecting to login'); // Debug log
         this.router.navigate(['/login']);
         break;
     }
@@ -83,8 +87,10 @@ export class AuthService {
     const user = this.getCurrentUser();
     if (!user) return '/login';
     
-    switch (user.role.toLowerCase()) {
+    const role = user.user_role || user.role || '';
+    switch (role.toLowerCase()) {
       case 'admin':
+      case 'Clinic Owner':
       case 'show_room_owner':
       case 'showroomowner':
       case 'show room owner':
@@ -99,7 +105,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('userRole');
+    localStorage.removeItem('user_role');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
@@ -108,12 +114,12 @@ export class AuthService {
 
   setCurrentUser(user: User, token: string): void {
     localStorage.setItem('authToken', token);
-    localStorage.setItem('userRole', user.role);
+    localStorage.setItem('user_role', user.user_role || user.role || '');
     localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
     
     // Navigate based on role
-    this.handleRoleBasedRedirect(user.role);
+    this.handleRoleBasedRedirect(user.user_role || user.role || '');
   }
 
   getCurrentUser(): User | null {
@@ -125,8 +131,8 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    const userRole = localStorage.getItem('userRole');
-    return userRole === role;
+    const user_role = localStorage.getItem('user_role');
+    return user_role === role;
   }
 
   private loadUserFromStorage(): void {
@@ -136,7 +142,7 @@ export class AuthService {
         const user = JSON.parse(userStr);
         this.currentUserSubject.next(user);
       } catch (error) {
-        console.error('Error parsing user from storage:', error);
+        // console.error('Error parsing user from storage:', error);
         this.logout();
       }
     }

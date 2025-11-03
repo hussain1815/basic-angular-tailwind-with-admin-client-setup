@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -12,7 +12,7 @@ import { BrowserModule } from '@angular/platform-browser';
   templateUrl: './simple-login.component.html',
   styleUrl: './simple-login.component.scss'
 })
-export class SimpleLoginComponent {
+export class SimpleLoginComponent implements OnInit {
  username: string = '';
   password: string = '';
    loginForm: FormGroup;
@@ -30,6 +30,37 @@ export class SimpleLoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
+  }
+
+  ngOnInit(): void {
+    // Check if user is already logged in
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        // console.log('User already logged in, redirecting to dashboard');
+        
+        // Check user role and redirect accordingly
+        const userRole = user.user_role || user.role || '';
+        
+        if (this.isAdminRole(userRole)) {
+          this.router.navigate(['/admin']);
+        } else if (this.isClientRole(userRole)) {
+          this.router.navigate(['/client']);
+        } else {
+          // Default redirect for unknown roles
+          this.router.navigate(['/admin']);
+        }
+      }
+    });
+  }
+
+  private isAdminRole(role: string): boolean {
+    const adminRoles = ['Clinic Owner', 'admin', 'show_room_owner', 'showroomowner', 'show room owner'];
+    return adminRoles.includes(role);
+  }
+
+  private isClientRole(role: string): boolean {
+    const clientRoles = ['Receptionist', 'receptionist', 'client', 'investor', 'user'];
+    return clientRoles.includes(role);
   }
 
   togglePassword(): void {
@@ -52,7 +83,7 @@ export class SimpleLoginComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Login error:', error);
+          // console.error('Login error:', error);
           this.errorMessage = error.error?.message || error.message || 'Login failed. Please try again.';
         }
       });

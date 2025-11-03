@@ -1,0 +1,396 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in"
+    (click)="onCancel()">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-slide-in"
+        (click)="$event.stopPropagation()">
+        <!-- Dialog Header -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold flex items-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                </svg>
+                {{ getDialogTitle() }}
+            </h2>
+            <button (click)="onCancel()"
+                class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Dialog Content -->
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+            <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+                <!-- Appointment Type Toggle -->
+                <div *ngIf="canToggleBulkMode() || (editMode && isBulkAppointment)" class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            {{ editMode && isBulkAppointment ? 'Edit Options' : 'Appointment Type' }}
+                        </h3>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-medium text-gray-700">
+                                {{ editMode && isBulkAppointment ? 'Single' : 'Single' }}
+                            </span>
+                            <button type="button" (click)="toggleBulkMode()"
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                [class]="isBulkMode ? 'bg-blue-600' : 'bg-gray-200'">
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                                    [class]="isBulkMode ? 'translate-x-6' : 'translate-x-1'"></span>
+                            </button>
+                            <span class="text-sm font-medium text-gray-700">
+                                {{ editMode && isBulkAppointment ? 'All in Series' : 'Bulk' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!editMode && isBulkMode" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h4 class="text-sm font-medium text-blue-800">Bulk Appointment Mode</h4>
+                                <p class="text-sm text-blue-700 mt-1">Create multiple appointments with the same details
+                                    at regular intervals (daily, weekly, or monthly).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="editMode && isBulkAppointment"
+                        class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-orange-600 mt-0.5 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                </path>
+                            </svg>
+                            <div>
+                                <h4 class="text-sm font-medium text-orange-800">Bulk Appointment Series</h4>
+                                <p class="text-sm text-orange-700 mt-1">
+                                    {{ isBulkMode
+                                    ? 'Changes will be applied to ALL appointments in this series.'
+                                    : 'Changes will only be applied to THIS appointment.' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor Selection -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Doctor & Appointment
+                        Details</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Doctor *</label>
+                            <select formControlName="doctor"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                                [class.border-red-500]="appointmentForm.get('doctor')?.invalid && appointmentForm.get('doctor')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('doctor')?.invalid && appointmentForm.get('doctor')?.touched">
+                                <option value="" disabled>Select doctor</option>
+                                <option *ngFor="let doctor of doctors" [value]="doctor.id">
+                                    {{ doctor.name }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('doctor')?.invalid && appointmentForm.get('doctor')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('doctor') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Patient Type *</label>
+                            <select formControlName="patient_type"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                                [class.border-red-500]="appointmentForm.get('patient_type')?.invalid && appointmentForm.get('patient_type')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('patient_type')?.invalid && appointmentForm.get('patient_type')?.touched">
+                                <option value="" disabled>Select patient type</option>
+                                <option *ngFor="let type of patientTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('patient_type')?.invalid && appointmentForm.get('patient_type')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('patient_type') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Patient Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">First Name *</label>
+                            <input type="text" formControlName="first_name" placeholder="Enter first name"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('first_name')?.invalid && appointmentForm.get('first_name')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('first_name')?.invalid && appointmentForm.get('first_name')?.touched">
+                            <div *ngIf="appointmentForm.get('first_name')?.invalid && appointmentForm.get('first_name')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('first_name') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Last Name *</label>
+                            <input type="text" formControlName="last_name" placeholder="Enter last name"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('last_name')?.invalid && appointmentForm.get('last_name')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('last_name')?.invalid && appointmentForm.get('last_name')?.touched">
+                            <div *ngIf="appointmentForm.get('last_name')?.invalid && appointmentForm.get('last_name')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('last_name') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Phone Number *</label>
+                            <input type="tel" formControlName="phone" placeholder="Enter phone number"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('phone')?.invalid && appointmentForm.get('phone')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('phone')?.invalid && appointmentForm.get('phone')?.touched">
+                            <div *ngIf="appointmentForm.get('phone')?.invalid && appointmentForm.get('phone')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('phone') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Email Address *</label>
+                            <input type="email" formControlName="email" placeholder="Enter email address"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('email')?.invalid && appointmentForm.get('email')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('email')?.invalid && appointmentForm.get('email')?.touched">
+                            <div *ngIf="appointmentForm.get('email')?.invalid && appointmentForm.get('email')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('email') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointment Schedule -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Schedule & Timing
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                {{ isBulkMode ? 'Start Date *' : 'Date *' }}
+                            </label>
+                            <input type="date" formControlName="date"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('date')?.invalid && appointmentForm.get('date')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('date')?.invalid && appointmentForm.get('date')?.touched">
+                            <div *ngIf="appointmentForm.get('date')?.invalid && appointmentForm.get('date')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('date') }}
+                            </div>
+                            <div *ngIf="isBulkMode" class="text-xs text-gray-500">
+                                This will be the date of the first appointment
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Time *</label>
+                            <input type="time" formControlName="time"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('time')?.invalid && appointmentForm.get('time')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('time')?.invalid && appointmentForm.get('time')?.touched">
+                            <div *ngIf="appointmentForm.get('time')?.invalid && appointmentForm.get('time')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('time') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Appointment Status *</label>
+                            <select formControlName="appointment_status"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                                [class.border-red-500]="appointmentForm.get('appointment_status')?.invalid && appointmentForm.get('appointment_status')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('appointment_status')?.invalid && appointmentForm.get('appointment_status')?.touched">
+                                <option value="" disabled>Select appointment status</option>
+                                <option *ngFor="let status of appointmentStatuses" [value]="status.value">
+                                    {{ status.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('appointment_status')?.invalid && appointmentForm.get('appointment_status')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('appointment_status') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Appointment Settings -->
+                    <div *ngIf="isBulkMode"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <!-- Session Count - only show in add mode -->
+                        <div *ngIf="!editMode && !viewMode" class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Number of Sessions *</label>
+                            <input type="number" formControlName="session_count" placeholder="Enter number of sessions"
+                                min="1" max="50"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                [class.border-red-500]="appointmentForm.get('session_count')?.invalid && appointmentForm.get('session_count')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('session_count')?.invalid && appointmentForm.get('session_count')?.touched">
+                            <div *ngIf="appointmentForm.get('session_count')?.invalid && appointmentForm.get('session_count')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('session_count') }}
+                            </div>
+                        </div>
+
+                        <!-- Session Type - show in all modes but disabled in edit -->
+                        <div class="space-y-2" [class.md:col-span-2]="editMode || viewMode">
+                            <label class="block text-sm font-medium text-gray-700">Session Frequency *</label>
+                            <select formControlName="session_type"
+                                [disabled]="editMode || viewMode"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                [class.border-red-500]="appointmentForm.get('session_type')?.invalid && appointmentForm.get('session_type')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('session_type')?.invalid && appointmentForm.get('session_type')?.touched">
+                                <option value="" disabled>Select frequency</option>
+                                <option *ngFor="let type of sessionTypes" [value]="type.value">
+                                    {{ type.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('session_type')?.invalid && appointmentForm.get('session_type')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('session_type') }}
+                            </div>
+                            <div *ngIf="editMode && isBulkAppointment" class="text-xs text-gray-500">
+                                Session frequency cannot be changed for existing appointment series
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Payment Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Fee *</label>
+                            <div class="relative">
+                                <!-- <span
+                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium"></span> -->
+                                <input type="number" formControlName="fee" placeholder="Enter fee amount" min="0"
+                                    step="10" pattern="[0-9]*"
+                                    class="w-full pl-8 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                    [class.border-red-500]="appointmentForm.get('fee')?.invalid && appointmentForm.get('fee')?.touched"
+                                    [class.ring-red-200]="appointmentForm.get('fee')?.invalid && appointmentForm.get('fee')?.touched"
+                                    (input)="onFeeInput($event)">
+                            </div>
+                            <div *ngIf="appointmentForm.get('fee')?.invalid && appointmentForm.get('fee')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('fee') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Payment Status *</label>
+                            <select formControlName="payment_status"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                                [class.border-red-500]="appointmentForm.get('payment_status')?.invalid && appointmentForm.get('payment_status')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('payment_status')?.invalid && appointmentForm.get('payment_status')?.touched">
+                                <option value="" disabled>Select payment status</option>
+                                <option *ngFor="let status of paymentStatuses" [value]="status.value">
+                                    {{ status.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('payment_status')?.invalid && appointmentForm.get('payment_status')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('payment_status') }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Payment Method *</label>
+                            <select formControlName="payment_method"
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white"
+                                [class.border-red-500]="appointmentForm.get('payment_method')?.invalid && appointmentForm.get('payment_method')?.touched"
+                                [class.ring-red-200]="appointmentForm.get('payment_method')?.invalid && appointmentForm.get('payment_method')?.touched">
+                                <option value="" disabled>Select payment method</option>
+                                <option *ngFor="let method of paymentMethods" [value]="method.value">
+                                    {{ method.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="appointmentForm.get('payment_method')?.invalid && appointmentForm.get('payment_method')?.touched"
+                                class="text-red-500 text-xs mt-1">
+                                {{ getErrorMessage('payment_method') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800 pb-2 border-b-2 border-gray-200">Additional Notes
+                    </h3>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea formControlName="notes"
+                            placeholder="Enter any additional notes or special instructions" rows="4"
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
+                            [class.border-red-500]="appointmentForm.get('notes')?.invalid && appointmentForm.get('notes')?.touched"
+                            [class.ring-red-200]="appointmentForm.get('notes')?.invalid && appointmentForm.get('notes')?.touched">
+            </textarea>
+                        <div *ngIf="appointmentForm.get('notes')?.invalid && appointmentForm.get('notes')?.touched"
+                            class="text-red-500 text-xs mt-1">
+                            {{ getErrorMessage('notes') }}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Debug Info (temporary) -->
+        <!-- <div class="px-6 py-2 bg-yellow-50 border-t border-yellow-200 text-xs">
+      <p><strong>Debug:</strong> Form Value: {{ appointmentForm.value | json }}</p>
+      <p><strong>Form Status:</strong> {{ appointmentForm.status }} | <strong>Disabled:</strong> {{ appointmentForm.disabled }}</p>
+      <p><strong>Mode:</strong> Edit: {{ editMode }} | View: {{ viewMode }} | Has Data: {{ !!appointmentData }}</p>
+      <button (click)="populateForm()" class="bg-red-500 text-white px-2 py-1 rounded text-xs mt-1">
+        Manual Populate Test
+      </button>
+    </div> -->
+
+        <!-- Dialog Actions -->
+        <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <button type="button" (click)="onCancel()"
+                class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+                Cancel
+            </button>
+            <button type="submit" (click)="onSubmit()"
+                class="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+                [disabled]="!viewMode && appointmentForm.invalid">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                </svg>
+                {{ getSubmitButtonText() }}
+            </button>
+        </div>
+    </div>
+</div>

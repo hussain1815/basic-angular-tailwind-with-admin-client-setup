@@ -1,4 +1,4 @@
-import { User } from './user.interface';
+import { User, Clinic } from './user.interface';
 
 export interface LoginRequest {
   email: string;
@@ -6,21 +6,15 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
   id: number;
   email: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-  phone_number: string | null;
-  address: string | null;
-  cnic: string | null;
+  full_name: string | null;
+  user_role: string;
+  user_details: any | null;
+  clinic: Clinic;
+  profile_photo: string | null;
   is_active: boolean;
-  date_joined: string;
-  last_login: string;
-  image?: string;
-  show_room_name?: string;
+  token: string;
 }
 
 export interface AuthState {
